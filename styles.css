@@ -1,0 +1,238 @@
+:root {
+  --ink: #153b37;
+  --muted: #5c6f68;
+  --paper: #fffaf0;
+  --line: rgba(31, 77, 67, .18);
+  --green: #2f7c5d;
+  --gold: #f0b84b;
+  --shadow: 0 22px 70px rgba(23, 58, 52, .18);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(240, 184, 75, .25), transparent 22rem),
+    radial-gradient(circle at 92% 10%, rgba(47, 124, 93, .2), transparent 26rem),
+    #eef1df;
+  overflow-x: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  min-height: 44px;
+  padding: .6rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button.secondary,
+#pauseBtn {
+  background: #f1e0b9;
+  color: var(--ink);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 4px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.stage-shell {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.showcase {
+  display: grid;
+  grid-template-columns: minmax(280px, .36fr) minmax(680px, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: stretch;
+}
+
+.scene-copy,
+.screen,
+.controls {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: rgba(255, 250, 240, .88);
+  box-shadow: var(--shadow);
+}
+
+.scene-copy {
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.eyebrow {
+  width: fit-content;
+  margin: 0 0 .8rem;
+  padding: .28rem .7rem;
+  border-radius: 999px;
+  background: #dff2e8;
+  color: var(--green);
+  font-size: .85rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.narration {
+  min-height: 6.5em;
+  margin: 1rem 0 1.2rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.35vw, 1.18rem);
+}
+
+.facts {
+  display: grid;
+  gap: .75rem;
+  margin: 0;
+}
+
+.facts div {
+  padding: .85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .62);
+}
+
+.facts dt {
+  color: var(--muted);
+  font-size: .85rem;
+  font-weight: 800;
+}
+
+.facts dd {
+  margin: .1rem 0 0;
+  font-weight: 900;
+}
+
+.screen {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  padding: 0;
+}
+
+#sceneSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .9rem;
+  margin-top: 1rem;
+  padding: .9rem 1rem;
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-weight: 900;
+}
+
+.controls input {
+  accent-color: var(--green);
+}
+
+#dataStatus {
+  margin: 0 0 0 auto;
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+.wing {
+  transform-origin: center;
+  animation: wingBeat .12s ease-in-out infinite alternate;
+}
+
+.wing.back {
+  animation-delay: .06s;
+}
+
+.bee-bob {
+  animation: beeBob .7s ease-in-out infinite alternate;
+}
+
+.pulse {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.time-spin {
+  transform-origin: center;
+  animation: timeSpin 5s linear infinite;
+}
+
+@keyframes wingBeat {
+  from { transform: rotate(-10deg) scaleY(.72); opacity: .56; }
+  to { transform: rotate(13deg) scaleY(1.06); opacity: .88; }
+}
+
+@keyframes beeBob {
+  from { transform: translateY(-4px); }
+  to { transform: translateY(6px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .35; transform: scale(1); }
+  50% { opacity: .95; transform: scale(1.12); }
+}
+
+@keyframes timeSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 980px) {
+  .showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .scene-copy {
+    min-height: auto;
+  }
+
+  #dataStatus {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

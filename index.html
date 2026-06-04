@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>昆蟲旅館 RAG 展示動畫</title>
+  <meta name="description" content="以本地 JSON 模擬 RAG 資料，控制獨居蜂飛來昆蟲旅館、築巢、封口與羽化離巢的 SVG 成果展示動畫。">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage-shell" aria-label="昆蟲旅館展示動畫">
+    <section class="showcase" aria-labelledby="showTitle">
+      <div class="scene-copy">
+        <p class="eyebrow">Local JSON RAG Mockup</p>
+        <h1 id="showTitle">小小法布爾的昆蟲旅館</h1>
+        <p id="sceneNarration" class="narration">載入展示資料中...</p>
+        <dl class="facts">
+          <div>
+            <dt>旅館造型</dt>
+            <dd id="hotelName">--</dd>
+          </div>
+          <div>
+            <dt>來訪主角</dt>
+            <dd id="beeName">--</dd>
+          </div>
+          <div>
+            <dt>目前事件</dt>
+            <dd id="eventName">--</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="screen" role="img" aria-label="獨居蜂來到昆蟲旅館築巢並羽化離巢的 SVG 動畫">
+        <svg id="sceneSvg" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="skyGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#dff7f3"/>
+              <stop offset="58%" stop-color="#f7f5df"/>
+              <stop offset="100%" stop-color="#e8d7a8"/>
+            </linearGradient>
+            <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fff7ad" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#f6c85f" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+              <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#315047" flood-opacity=".22"/>
+            </filter>
+            <filter id="tinyShadow" x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#1c302b" flood-opacity=".25"/>
+            </filter>
+            <path id="flightCurve" d="M -110 210 C 120 95, 265 175, 420 282 S 690 352, 805 308" fill="none"/>
+          </defs>
+
+          <rect width="1280" height="720" fill="url(#skyGradient)"/>
+          <circle id="sun" cx="1075" cy="116" r="145" fill="url(#sunGlow)"/>
+          <path d="M0 590 C160 540 310 592 460 550 C650 496 810 560 980 520 C1120 488 1215 516 1280 492 L1280 720 L0 720 Z" fill="#89b66e"/>
+          <path d="M0 646 C205 594 358 654 548 606 C752 554 915 632 1126 574 C1202 553 1246 552 1280 558 L1280 720 L0 720 Z" fill="#4e8f62"/>
+
+          <g id="plantsLayer"></g>
+          <g id="hotelLayer" filter="url(#softShadow)"></g>
+          <g id="nestLayer"></g>
+          <g id="beeLayer" filter="url(#tinyShadow)"></g>
+          <g id="annotationLayer"></g>
+          <g id="timeLayer"></g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="展示控制">
+      <button id="restartBtn" type="button">重新播放</button>
+      <button id="pauseBtn" type="button">暫停</button>
+      <label>
+        速度
+        <input id="speedRange" type="range" min="0.65" max="1.5" step="0.05" value="1">
+      </label>
+      <p id="dataStatus">資料來源：本地 JSON 模擬 RAG</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
