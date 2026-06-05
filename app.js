@@ -10,6 +10,15 @@ const fallbackRagData = {
       palette: { wood: "#9a6a3c", woodDark: "#68411f", roof: "#6b3f24", hole: "#3a2414", tube: "#d19a57" },
       holePattern: "bamboo_grid",
       caption: "造型參考：木框、斜屋頂、竹管巢材"
+    },
+    {
+      id: "log_block",
+      name: "鑽孔木塊旅館",
+      description: "以木塊鑽孔呈現不同孔徑，外觀接近枯木或自然巢材。",
+      frameShape: "block",
+      palette: { wood: "#7d522e", woodDark: "#4b2d19", roof: "#8b5a30", hole: "#22120a", tube: "#b9834f" },
+      holePattern: "drilled_block",
+      caption: "造型參考：厚木塊、鑽孔、自然木紋"
     }
   ],
   solitaryBees: [
@@ -69,6 +78,7 @@ const state = {
   timers: [],
   animations: [],
   holes: [],
+  monthIndex: 4,
   currentHole: null,
   currentBee: null,
   currentHotel: null
@@ -213,84 +223,114 @@ function drawPlants() {
   layers.plants.appendChild(plantGroup);
 }
 
-function drawHotel(hotel) {
-  clear(layers.hotel);
-  clear(layers.nest);
-  clear(layers.annotations);
-  clear(layers.time);
-  state.holes = [];
+function getSeasonActivity(month) {
+  if (month >= 5 && month <= 8) return { level: "high", active: 5, sealed: 8, nesting: 5, label: "夏季高峰：頻繁入住、搬運與封口" };
+  if (month >= 3 && month <= 4) return { level: "rising", active: 3, sealed: 3, nesting: 3, label: "春季甦醒：開始探查與築巢" };
+  if (month >= 9 && month <= 10) return { level: "late", active: 2, sealed: 6, nesting: 2, label: "秋季後段：封口巢室變多" };
+  return { level: "quiet", active: 1, sealed: 4, nesting: 1, label: "低活動期：多數巢室安靜等待" };
+}
 
+function drawMonthTimeline(month, activity) {
+  clear(layers.time);
+  const group = el("g", { transform: "translate(132 42)" });
+  group.appendChild(el("rect", { x: 0, y: 0, width: 1048, height: 72, rx: 26, fill: "rgba(255,250,240,.74)", stroke: "rgba(31,77,67,.18)" }));
+  group.appendChild(el("text", { x: 26, y: 29, fill: "#153b37", "font-size": 17, "font-weight": 900, text: "1-12 月入住情況" }));
+  group.appendChild(el("text", { x: 26, y: 55, fill: "#5c6f68", "font-size": 15, text: activity.label }));
+
+  for (let i = 1; i <= 12; i += 1) {
+    const x = 220 + (i - 1) * 73;
+    const summer = i >= 5 && i <= 8;
+    const height = summer ? 34 : i >= 3 && i <= 10 ? 23 : 13;
+    group.appendChild(el("line", { x1: x, y1: 50, x2: x, y2: 50 - height, stroke: summer ? "#f0b84b" : "#6aa97b", "stroke-width": 9, "stroke-linecap": "round", opacity: i === month ? "1" : ".48" }));
+    group.appendChild(el("text", { x, y: 63, "text-anchor": "middle", fill: i === month ? "#153b37" : "#6b7d76", "font-size": 13, "font-weight": i === month ? 900 : 700, text: `${i}` }));
+    if (i === month) {
+      group.appendChild(el("circle", { cx: x, cy: 16, r: 15, fill: "#2f7c5d", opacity: ".95" }));
+      group.appendChild(el("text", { x, y: 21, "text-anchor": "middle", fill: "#fffaf0", "font-size": 14, "font-weight": 900, text: `${i}` }));
+    }
+  }
+  layers.time.appendChild(group);
+}
+
+function drawHotel(hotel, layout, index) {
   const p = hotel.palette;
-  const group = el("g", { id: "hotelGraphic" });
-  const x = 530;
-  const y = hotel.frameShape === "tall_house" ? 170 : 205;
-  const width = hotel.frameShape === "block" ? 360 : 405;
-  const height = hotel.frameShape === "tall_house" ? 430 : 365;
+  const group = el("g", { class: "hotel-graphic", "data-hotel": hotel.id });
+  const x = layout.x;
+  const y = layout.y;
+  const width = layout.width;
+  const height = layout.height;
 
   if (hotel.frameShape !== "block") {
     group.appendChild(el("path", {
-      d: `M${x - 42} ${y + 52} L${x + width / 2} ${y - 58} L${x + width + 42} ${y + 52} Z`,
+      d: `M${x - 34} ${y + 45} L${x + width / 2} ${y - 50} L${x + width + 34} ${y + 45} Z`,
       fill: p.roof,
       stroke: p.woodDark,
-      "stroke-width": 12,
+      "stroke-width": 10,
       "stroke-linejoin": "round"
     }));
   }
 
   group.appendChild(el("rect", {
     x, y, width, height,
-    rx: hotel.frameShape === "block" ? 36 : 20,
+    rx: hotel.frameShape === "block" ? 34 : 19,
     fill: p.wood,
     stroke: p.woodDark,
-    "stroke-width": 14
+    "stroke-width": 12
   }));
 
-  for (let i = 0; i < 9; i += 1) {
-    const yy = y + 26 + i * (height / 9);
+  for (let i = 0; i < 8; i += 1) {
+    const yy = y + 22 + i * (height / 8);
     group.appendChild(el("path", {
-      d: `M${x + 20} ${yy} C${x + 98} ${yy - 12}, ${x + 190} ${yy + 14}, ${x + width - 22} ${yy - 2}`,
+      d: `M${x + 18} ${yy} C${x + 80} ${yy - 10}, ${x + 154} ${yy + 12}, ${x + width - 20} ${yy - 2}`,
       fill: "none",
-      stroke: i % 2 ? "rgba(255,255,255,.14)" : "rgba(70,36,14,.18)",
-      "stroke-width": 4,
+      stroke: i % 2 ? "rgba(255,255,255,.13)" : "rgba(70,36,14,.18)",
+      "stroke-width": 3.5,
       "stroke-linecap": "round"
     }));
   }
 
   const cols = hotel.holePattern === "drilled_block" ? 5 : 6;
   const rows = hotel.holePattern === "mixed" ? 5 : 4;
-  const startX = x + 58;
-  const startY = y + 65;
-  const gapX = (width - 116) / (cols - 1);
-  const gapY = (height - 130) / (rows - 1);
+  const startX = x + 48;
+  const startY = y + 58;
+  const gapX = (width - 96) / (cols - 1);
+  const gapY = (height - 116) / (rows - 1);
 
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
-      const cx = startX + col * gapX + (row % 2 ? 9 : 0);
+      const cx = startX + col * gapX + (row % 2 ? 7 : 0);
       const cy = startY + row * gapY;
       const radius = hotel.holePattern === "mixed"
-        ? [18, 23, 14, 20, 16, 24][(row + col) % 6]
+        ? [15, 20, 12, 18, 14, 21][(row + col) % 6]
         : hotel.holePattern === "drilled_block"
-          ? [18, 24, 15, 21, 17][(row * cols + col) % 5]
-          : 24;
-      const hole = el("g", { class: "hole", "data-row": row, "data-col": col });
+          ? [16, 22, 13, 19, 15][(row * cols + col) % 5]
+          : 20;
+      const hole = el("g", { class: "hole", "data-row": row, "data-col": col, "data-hotel": hotel.id });
       if (hotel.holePattern === "bamboo_grid" || hotel.holePattern === "mixed") {
-        hole.appendChild(el("circle", { cx, cy, r: radius + 8, fill: p.tube, stroke: p.woodDark, "stroke-width": 4 }));
+        hole.appendChild(el("circle", { cx, cy, r: radius + 7, fill: p.tube, stroke: p.woodDark, "stroke-width": 3.5 }));
       }
       hole.appendChild(el("circle", { cx, cy, r: radius, fill: p.hole }));
       hole.appendChild(el("circle", { cx: cx - radius * .3, cy: cy - radius * .28, r: Math.max(3, radius * .14), fill: "rgba(255,255,255,.2)" }));
       group.appendChild(hole);
-      state.holes.push({ cx, cy, radius, group: hole, sealed: false });
+      state.holes.push({ cx, cy, radius, group: hole, sealed: false, hotel, hotelIndex: index });
     }
   }
 
-  group.appendChild(el("rect", { x: x + 28, y: y + height - 26, width: width - 56, height: 22, rx: 11, fill: "rgba(63,35,18,.28)" }));
+  group.appendChild(el("rect", { x: x + 24, y: y + height - 24, width: width - 48, height: 19, rx: 10, fill: "rgba(63,35,18,.28)" }));
+  group.appendChild(el("text", { x: x + width / 2, y: y + height + 38, "text-anchor": "middle", fill: "#153b37", "font-size": 19, "font-weight": 900, text: hotel.name }));
+  group.appendChild(el("text", { x: x + width / 2, y: y + height + 62, "text-anchor": "middle", fill: "#5c6f68", "font-size": 14, text: hotel.caption.replace("造型參考：", "") }));
   layers.hotel.appendChild(group);
+}
 
-  const caption = el("g", { transform: "translate(525 640)" }, [
-    el("rect", { x: 0, y: 0, width: 430, height: 46, rx: 23, fill: "rgba(255,250,240,.86)", stroke: "rgba(31,77,67,.22)" }),
-    el("text", { x: 24, y: 30, fill: "#153b37", "font-size": 20, "font-weight": 800, text: hotel.caption })
-  ]);
-  layers.annotations.appendChild(caption);
+function drawHotels(hotels) {
+  clear(layers.hotel);
+  clear(layers.nest);
+  clear(layers.annotations);
+  state.holes = [];
+  const layouts = [
+    { x: 350, y: 194, width: 330, height: 328 },
+    { x: 790, y: 226, width: 340, height: 292 }
+  ];
+  hotels.slice(0, 2).forEach((hotel, index) => drawHotel(hotel, layouts[index], index));
 }
 
 function drawBee(bee) {
@@ -383,9 +423,75 @@ function makeNestCell(hole, index, color) {
   return cell;
 }
 
+function markNestState(hole, bee, status, visibleCells = 2) {
+  const material = state.data.nestMaterials.find(item => item.id === bee.defaultSeal) || state.data.nestMaterials.find(item => item.id === "mud");
+  const pollen = state.data.nestMaterials.find(item => item.id === "pollen") || material;
+  const cellGroup = el("g", { class: `nest-state ${status}` });
+  for (let i = 0; i < visibleCells; i += 1) {
+    const offset = i * 9;
+    cellGroup.appendChild(el("ellipse", { cx: hole.cx - offset, cy: hole.cy + (i % 2 ? 5 : -3), rx: 6.5, ry: 10.5, fill: i % 2 ? material.color : pollen.color, opacity: ".82" }));
+    cellGroup.appendChild(el("circle", { cx: hole.cx - offset + 2, cy: hole.cy - 1, r: 2.4, fill: "#fff4c7", opacity: ".78" }));
+  }
+  layers.nest.appendChild(cellGroup);
+
+  if (status === "sealed" || status === "emerging") {
+    const seal = makeSeal(hole, bee.defaultSeal, material);
+    seal.setAttribute("opacity", status === "sealed" ? ".86" : ".72");
+    hole.sealed = true;
+    hole.sealNode = seal;
+    if (status === "emerging") {
+      const cracks = makeCracks(hole);
+      cracks.setAttribute("opacity", ".85");
+    }
+  }
+}
+
+function makeCracks(hole) {
+  const cracks = el("g", { class: "cracks", opacity: 0 });
+  cracks.appendChild(el("path", { d: `M${hole.cx - 10} ${hole.cy - 15} L${hole.cx + 2} ${hole.cy - 3} L${hole.cx - 3} ${hole.cy + 11} L${hole.cx + 12} ${hole.cy + 18}`, fill: "none", stroke: "#2c190e", "stroke-width": 4, "stroke-linecap": "round" }));
+  layers.nest.appendChild(cracks);
+  return cracks;
+}
+
+function seedNestStates(activity) {
+  const bees = state.data.solitaryBees;
+  const shuffled = [...state.holes].sort(() => Math.random() - .5);
+  let cursor = 0;
+  for (let i = 0; i < activity.sealed && cursor < shuffled.length; i += 1, cursor += 1) {
+    markNestState(shuffled[cursor], pick(bees), i % 5 === 0 ? "emerging" : "sealed", 1 + (i % 3));
+  }
+  for (let i = 0; i < activity.nesting && cursor < shuffled.length; i += 1, cursor += 1) {
+    markNestState(shuffled[cursor], pick(bees), "nesting", 1 + (i % 3));
+  }
+}
+
+function drawBusyBees(activity) {
+  const group = el("g", { class: "busy-bees", opacity: activity.level === "quiet" ? ".38" : ".76" });
+  const count = activity.active;
+  for (let i = 0; i < count; i += 1) {
+    const bee = pick(state.data.solitaryBees);
+    const c = bee.colors;
+    const startX = 120 + i * 170;
+    const y = 145 + (i % 3) * 54;
+    const mini = el("g", { transform: `translate(${startX} ${y}) scale(.25)` });
+    mini.appendChild(el("ellipse", { cx: 42, cy: -18, rx: 28, ry: 13, fill: c.wing, opacity: ".55" }));
+    mini.appendChild(el("ellipse", { cx: 8, cy: 0, rx: 20, ry: 18, fill: c.head }));
+    mini.appendChild(el("ellipse", { cx: 42, cy: 2, rx: 28, ry: 22, fill: c.thorax }));
+    mini.appendChild(el("ellipse", { cx: 84, cy: 5, rx: 36, ry: 23, fill: c.abdomen }));
+    mini.appendChild(el("path", { d: "M-12 -16 C-32 -34, -42 -36, -52 -44", fill: "none", stroke: c.head, "stroke-width": 4, "stroke-linecap": "round" }));
+    mini.appendChild(el("circle", { cx: 44, cy: 30, r: 8, fill: c.pollen, opacity: i % 2 ? "0" : ".9" }));
+    group.appendChild(mini);
+    animateNode(mini, [
+      { transform: `translate(${startX} ${y}) scale(.25)` },
+      { transform: `translate(${startX + 120 + Math.random() * 60} ${y + (i % 2 ? 32 : -28)}) scale(.25)` },
+      { transform: `translate(${startX + 250 + Math.random() * 80} ${y + (i % 3 - 1) * 36}) scale(.25)` }
+    ], { duration: 3800 + i * 360 });
+  }
+  layers.bee.appendChild(group);
+}
+
 function showTimeLapse() {
-  clear(layers.time);
-  const group = el("g", { transform: "translate(170 120)", opacity: 0 });
+  const group = el("g", { transform: "translate(920 128)", opacity: 0 });
   group.appendChild(el("circle", { class: "time-spin", cx: 0, cy: 0, r: 46, fill: "none", stroke: "#f0b84b", "stroke-width": 8, "stroke-dasharray": "44 18" }));
   group.appendChild(el("text", { x: 70, y: -8, fill: "#153b37", "font-size": 26, "font-weight": 900, text: "數週後" }));
   group.appendChild(el("text", { x: 70, y: 24, fill: "#5c6f68", "font-size": 18, text: "卵、幼蟲、繭在巢室中發育" }));
@@ -453,38 +559,57 @@ async function sealAndEmerge(hole, bee, sealType) {
 
   setText("羽化離巢", "新成蜂咬開封口，從巢管中爬出並飛離。這是成果展示用的簡化生命週期動畫。");
   clear(layers.annotations);
-  const cracks = el("g", { opacity: 0 });
-  cracks.appendChild(el("path", { d: `M${hole.cx - 10} ${hole.cy - 15} L${hole.cx + 2} ${hole.cy - 3} L${hole.cx - 3} ${hole.cy + 11} L${hole.cx + 12} ${hole.cy + 18}`, fill: "none", stroke: "#2c190e", "stroke-width": 4, "stroke-linecap": "round" }));
-  layers.nest.appendChild(cracks);
-  await animateNode(cracks, [{ opacity: 0 }, { opacity: 1 }], { duration: 450 });
-  await animateNode(seal, [{ opacity: 1 }, { opacity: .16 }], { duration: 650 });
+  const cracks = makeCracks(hole);
+  await animateNode(cracks, [{ opacity: 0 }, { opacity: .45 }, { opacity: 1 }], { duration: 900 });
+  await animateNode(seal, [{ opacity: 1 }, { opacity: .55 }, { opacity: .16 }], { duration: 1200 });
   const newBee = drawBee(bee);
   newBee.setAttribute("transform", `translate(${hole.cx - 55} ${hole.cy - 10}) scale(.5)`);
   await flyBeeTo(hole.cx - 118, hole.cy - 58, .62, 700);
   await flyBeeTo(1390, 120, .76, 1900);
 }
 
+async function emergeFromExistingSeal(hole, bee) {
+  if (!hole?.sealNode) return;
+  setText("舊巢破口", `當月也可能看到先前已封口的巢室慢慢破口，新的${bee.name}從管內離開。`);
+  drawAnnotation(hole, "已封口巢室", "不是每個洞口都同一天完成，有些正在等待羽化。");
+  await delay(650);
+  const cracks = makeCracks(hole);
+  await animateNode(cracks, [{ opacity: 0 }, { opacity: .4 }, { opacity: 1 }], { duration: 1100 });
+  await animateNode(hole.sealNode, [{ opacity: .86 }, { opacity: .52 }, { opacity: .2 }], { duration: 1300 });
+  const emerged = drawBee(bee);
+  emerged.setAttribute("transform", `translate(${hole.cx - 58} ${hole.cy - 10}) scale(.48)`);
+  await flyBeeTo(hole.cx - 118, hole.cy - 58, .58, 650);
+  await flyBeeTo(1390, 130 + Math.random() * 120, .68, 1500);
+}
+
 async function playCycle() {
   stopAll();
+  state.monthIndex = (state.monthIndex % 12) + 1;
+  const month = state.monthIndex;
+  const activity = getSeasonActivity(month);
+
   clear(layers.nest);
   clear(layers.annotations);
-  clear(layers.time);
+  clear(layers.bee);
 
-  const hotel = pick(state.data.hotelStyles);
+  const hotels = state.data.hotelStyles.length >= 2 ? state.data.hotelStyles.slice(0, 2) : [state.data.hotelStyles[0], state.data.hotelStyles[0]];
   const bee = pick(state.data.solitaryBees);
   const event = weightedPick(state.data.sceneEvents);
   const material = pick(state.data.nestMaterials.filter(item => item.id === "pollen" || item.id === bee.defaultSeal || item.id === "mixed"));
 
-  state.currentHotel = hotel;
-  ui.hotelName.textContent = hotel.name;
+  state.currentHotel = hotels[0];
+  ui.hotelName.textContent = hotels.map(item => item.name).join(" + ");
   ui.beeName.textContent = bee.name;
-  ui.eventName.textContent = event.name;
+  ui.eventName.textContent = `${month}月｜${event.name}`;
 
   drawPlants();
-  drawHotel(hotel);
+  drawMonthTimeline(month, activity);
+  drawHotels(hotels);
   drawBee(bee);
+  seedNestStates(activity);
+  drawBusyBees(activity);
 
-  const targetCandidates = state.holes.filter(hole => {
+  const targetCandidates = state.holes.filter(hole => !hole.sealed).filter(hole => {
     if (bee.preferredHoleSize === "small") return hole.radius <= 19;
     if (bee.preferredHoleSize === "medium") return hole.radius >= 17 && hole.radius <= 24;
     if (bee.preferredHoleSize === "large") return hole.radius >= 22;
@@ -493,13 +618,19 @@ async function playCycle() {
   const target = pick(targetCandidates.length ? targetCandidates : state.holes);
   state.currentHole = target;
 
-  setText("飛來", `${bee.name}飛向${hotel.name}。${bee.caption}`);
+  setText("飛來", `${month}月的${activity.label}。${bee.name}飛向${target.hotel.name}，${bee.caption}`);
   await flyBeeTo(250, 220, .8, 1600);
   await delay(350);
 
   const inspectList = [pick(state.holes), pick(state.holes), target].filter(Boolean);
   setText("探查洞口", "獨居蜂會在洞口附近短暫停留，尋找合適的管徑與位置。");
   await inspectHoles(inspectList);
+
+  const emergingCandidates = state.holes.filter(hole => hole.sealed && hole.sealNode);
+  if (emergingCandidates.length && month >= 5 && Math.random() > .35) {
+    await emergeFromExistingSeal(pick(emergingCandidates), pick(state.data.solitaryBees));
+    drawBee(bee);
+  }
 
   if (event.id === "inspect_and_leave") {
     setText("環境不合適", "這一輪隨機事件是探查後離開，表示不是每次來訪都會築巢。");
