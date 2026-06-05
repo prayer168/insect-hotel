@@ -61,8 +61,7 @@ const ui = {
   eventName: document.getElementById("eventName"),
   restartBtn: document.getElementById("restartBtn"),
   pauseBtn: document.getElementById("pauseBtn"),
-  speedRange: document.getElementById("speedRange"),
-  dataStatus: document.getElementById("dataStatus")
+  speedRange: document.getElementById("speedRange")
 };
 
 function el(tag, attrs = {}, children = []) {
@@ -144,11 +143,8 @@ async function loadRagData() {
   try {
     const response = await fetch("./data/insect-hotel-rag.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    ui.dataStatus.textContent = "資料來源：data/insect-hotel-rag.json";
-    return data;
+    return await response.json();
   } catch (error) {
-    ui.dataStatus.textContent = "資料來源：內建 fallback。建議用本機伺服器開啟以讀取 JSON。";
     return fallbackRagData;
   }
 }
