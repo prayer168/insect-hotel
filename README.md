@@ -11,6 +11,7 @@
 | `app.js` | 隨機選材、SVG 生成與動畫控制 |
 | `data/insect-hotel-rag.json` | 本地 RAG 模擬資料 |
 | `docs/technical-build-guide.md` | 技術建置、驗證與部署交接文件 |
+| `docs/technical-build-guide.html` | 技術文件網頁版 |
 
 ## 展示內容
 

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小小法布爾的昆蟲旅館：技術建置文件</title>
+  <meta name="description" content="小小法布爾的昆蟲旅館 SVG 展示動畫技術建置、資料設計、驗證與 GitHub Pages 部署文件。">
+  <style>
+    :root {
+      --ink: #153b37;
+      --muted: #5c6f68;
+      --paper: #fffaf0;
+      --soft: #f6f1df;
+      --line: rgba(31, 77, 67, .18);
+      --green: #2f7c5d;
+      --gold: #f0b84b;
+      --code: #102b29;
+      --shadow: 0 22px 70px rgba(23, 58, 52, .14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      line-height: 1.75;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(240, 184, 75, .24), transparent 22rem),
+        radial-gradient(circle at 100% 8%, rgba(47, 124, 93, .18), transparent 26rem),
+        #eef1df;
+    }
+
+    a {
+      color: #216b57;
+      font-weight: 800;
+      text-decoration-thickness: .12em;
+      text-underline-offset: .18em;
+    }
+
+    code {
+      padding: .12rem .32rem;
+      border-radius: .45rem;
+      background: rgba(47, 124, 93, .1);
+      color: var(--code);
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: .92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 1rem 0 0;
+      padding: 1rem;
+      border-radius: 18px;
+      background: #102b29;
+      color: #f7f5df;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font-size: .94rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      overflow: hidden;
+      border-radius: 18px;
+      background: rgba(255,255,255,.62);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    th,
+    td {
+      padding: .8rem .9rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: rgba(47, 124, 93, .12);
+      font-weight: 900;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .page {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1rem 0 3rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 1.2rem;
+      align-items: stretch;
+      margin: 1rem 0;
+    }
+
+    .hero-main,
+    .toc,
+    .card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(255, 250, 240, .9);
+      box-shadow: var(--shadow);
+      overflow-wrap: anywhere;
+    }
+
+    .hero-main {
+      padding: clamp(1.4rem, 3vw, 2.2rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      right: 2rem;
+      bottom: 1.5rem;
+      width: 170px;
+      height: 120px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 18% 50%, #1f1812 0 10px, transparent 11px),
+        radial-gradient(circle at 40% 48%, #3b2a1e 0 22px, transparent 23px),
+        radial-gradient(circle at 68% 52%, #5c4630 0 31px, transparent 32px);
+      opacity: .12;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 .35rem;
+      color: var(--green);
+      font-size: .92rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(2.15rem, 5vw, 4.7rem);
+      line-height: 1.08;
+      letter-spacing: -.04em;
+    }
+
+    .lead {
+      max-width: 780px;
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      margin-top: 1.3rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: .55rem 1rem;
+      border-radius: 999px;
+      background: var(--green);
+      color: white;
+      text-decoration: none;
+    }
+
+    .button.secondary {
+      background: #f1e0b9;
+      color: var(--ink);
+    }
+
+    .toc {
+      padding: 1rem;
+      align-self: start;
+      position: sticky;
+      top: 1rem;
+    }
+
+    .toc h2 {
+      margin: 0 0 .55rem;
+      font-size: 1rem;
+    }
+
+    .toc ol {
+      display: grid;
+      gap: .25rem;
+      margin: 0;
+      padding-left: 1.25rem;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      padding: clamp(1.15rem, 2vw, 1.6rem);
+      overflow: hidden;
+    }
+
+    h2 {
+      margin: 0 0 .65rem;
+      font-size: clamp(1.35rem, 2.3vw, 2rem);
+      line-height: 1.2;
+    }
+
+    p { margin: .6rem 0 0; }
+
+    ul,
+    ol {
+      margin: .6rem 0 0;
+      padding-left: 1.35rem;
+    }
+
+    li + li { margin-top: .25rem; }
+
+    .note {
+      margin-top: 1rem;
+      padding: .9rem 1rem;
+      border-left: 6px solid var(--gold);
+      border-radius: 14px;
+      background: rgba(240, 184, 75, .13);
+      color: #4f4d35;
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 1rem;
+      padding: 1rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .toc { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-main">
+        <p class="eyebrow">Technical Build Guide</p>
+        <h1 id="title">小小法布爾的昆蟲旅館：技術建置文件</h1>
+        <p class="lead">以純前端 HTML、CSS、JavaScript 與 SVG 建置成果展示動畫，結合本地 JSON 模擬 RAG 資料、月份入住狀態、雙昆蟲旅館場景與 GitHub Pages 部署。</p>
+        <div class="actions">
+          <a class="button" href="../">觀看展示網站</a>
+          <a class="button secondary" href="./technical-build-guide.md">查看 Markdown 版</a>
+        </div>
+      </div>
+      <nav class="toc" aria-label="文件目錄">
+        <h2>文件目錄</h2>
+        <ol>
+          <li><a href="#purpose">目的</a></li>
+          <li><a href="#architecture">技術架構</a></li>
+          <li><a href="#data">資料設計</a></li>
+          <li><a href="#svg">SVG 舞台設計</a></li>
+          <li><a href="#animation">動畫流程</a></li>
+          <li><a href="#layout">版面原則</a></li>
+          <li><a href="#validation">驗證流程</a></li>
+          <li><a href="#deploy">部署流程</a></li>
+          <li><a href="#next">後續擴充</a></li>
+        </ol>
+      </nav>
+    </section>
+
+    <div class="grid">
+      <section id="purpose" class="card">
+        <h2>目的</h2>
+        <p>本專案是一個成果展示用的純前端 SVG 動畫網站，用來呈現「昆蟲旅館」探究單元的視覺化成果。網站以本地 JSON 模擬 RAG 資料來源，透過 JavaScript 控制 SVG 動畫，展示不同昆蟲旅館造型、來訪蜂類、築巢、封口、羽化離巢，以及 1 到 12 月的入住變化。</p>
+        <p>線上網址：<a href="https://prayer168.github.io/insect-hotel/">https://prayer168.github.io/insect-hotel/</a></p>
+      </section>
+
+      <section id="architecture" class="card">
+        <h2>技術架構</h2>
+        <table>
+          <thead><tr><th>檔案</th><th>功能</th></tr></thead>
+          <tbody>
+            <tr><td><code>index.html</code></td><td>網頁結構、SEO metadata、SVG 舞台與控制列</td></tr>
+            <tr><td><code>styles.css</code></td><td>全螢幕無捲軸版面、投影友善字級、控制列樣式</td></tr>
+            <tr><td><code>app.js</code></td><td>SVG 物件生成、動畫流程、隨機事件、月份狀態、暫停與速度控制</td></tr>
+            <tr><td><code>data/insect-hotel-rag.json</code></td><td>本地 RAG mock data，包含旅館造型、來訪蜂類、巢材與事件</td></tr>
+            <tr><td><code>.nojekyll</code></td><td>讓 GitHub Pages 以純靜態網站方式發布</td></tr>
+          </tbody>
+        </table>
+        <p class="note">目前不使用前端框架，部署與維護成本低；所有互動都在瀏覽器端執行。</p>
+      </section>
+
+      <section id="data" class="card">
+        <h2>資料設計</h2>
+        <p><code>data/insect-hotel-rag.json</code> 主要分成四組：</p>
+        <table>
+          <thead><tr><th>欄位</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td><code>hotelStyles</code></td><td>昆蟲旅館造型，例如竹管木框、鑽孔木塊、混合材料</td></tr>
+            <tr><td><code>solitaryBees</code></td><td>來訪蜂類，例如切葉蜂類、木蜂類、蘆蜂、泥壺蜂</td></tr>
+            <tr><td><code>nestMaterials</code></td><td>築巢或封口材料，例如花粉團、葉片、泥土、木屑、莖髓</td></tr>
+            <tr><td><code>sceneEvents</code></td><td>動畫事件權重，例如完整生命週期、探查後離開</td></tr>
+          </tbody>
+        </table>
+        <p><code>app.js</code> 內有 <code>fallbackRagData</code>，即使 JSON 載入失敗，展示仍可運作。</p>
+      </section>
+
+      <section id="svg" class="card">
+        <h2>SVG 舞台設計</h2>
+        <p>SVG 使用固定 <code>viewBox="0 0 1280 720"</code>，並以 <code>preserveAspectRatio="xMidYMid slice"</code> 填滿畫面。為避免全螢幕裁切重要資訊，月份時間軸與主要標籤需放在安全區，不靠近 SVG 邊緣。</p>
+        <ol>
+          <li>背景天空、太陽、山丘</li>
+          <li><code>plantsLayer</code>：花草與環境</li>
+          <li><code>hotelLayer</code>：兩座昆蟲旅館</li>
+          <li><code>nestLayer</code>：洞口內部狀態、封口、破口</li>
+          <li><code>beeLayer</code>：主角蜂與背景忙碌飛行蜂</li>
+          <li><code>annotationLayer</code>：觀察提示框</li>
+          <li><code>timeLayer</code>：1 到 12 月入住時間軸與時間流逝提示</li>
+        </ol>
+      </section>
+
+      <section id="animation" class="card">
+        <h2>動畫流程</h2>
+        <p>核心流程在 <code>playCycle()</code>：</p>
+        <ol>
+          <li>月份從 5 月開始，依序循環到 12 月再回到 1 月。</li>
+          <li><code>getSeasonActivity(month)</code> 決定當月活動程度。</li>
+          <li>同時繪製兩座旅館：竹管木框旅館與鑽孔木塊旅館。</li>
+          <li><code>seedNestStates(activity)</code> 預先放入已封口、正在築巢、破口中的洞口狀態。</li>
+          <li><code>drawBusyBees(activity)</code> 顯示夏季多隻蜂忙碌飛行。</li>
+          <li>隨機選一隻來訪蜂探查洞口並築巢。</li>
+          <li>若當月活動高，穿插既有封口巢室破口羽化。</li>
+          <li>主角完成搬運、巢室示意、封口、數週後羽化離巢。</li>
+        </ol>
+        <p class="note">這種設計同時呈現「單一個體行為」與「整座旅館一段時間後的狀態」。</p>
+      </section>
+
+      <section id="layout" class="card">
+        <h2>版面原則</h2>
+        <ul>
+          <li>頁面以 <code>100dvh</code> 和 CSS grid 填滿整個瀏覽器。</li>
+          <li><code>html</code>、<code>body</code> 設定 <code>overflow: hidden</code>，避免成果展示時出現捲軸。</li>
+          <li>左側是文字敘事與狀態卡，右側是主 SVG 舞台。</li>
+          <li>控制列保留重新播放、暫停、速度，方便教師展示時操作。</li>
+          <li>不在畫面顯示資料來源或 mockup 字樣，避免成果展觀眾分心。</li>
+        </ul>
+      </section>
+
+      <section id="validation" class="card">
+        <h2>驗證流程</h2>
+        <p>修改後至少執行：</p>
+        <pre><code>node --check app.js
+rg -n "資料來源|Local JSON RAG Mockup|樹脂蜂|resin_bee|mason_bee|泥蜂或壁蜂類" app.js index.html styles.css data\insect-hotel-rag.json README.md</code></pre>
+        <p>本機預覽：</p>
+        <pre><code>python -m http.server 8087</code></pre>
+        <p>使用 Chrome headless 截圖檢查版面：</p>
+        <pre><code>&amp; 'C:\Program Files\Google\Chrome\Application\chrome.exe' --headless=new --disable-gpu --window-size=1920,1080 --virtual-time-budget=7000 --screenshot='preview.png' 'http://localhost:8087'</code></pre>
+        <p class="note">截圖只作為驗證暫存，不應加入 commit。</p>
+      </section>
+
+      <section id="deploy" class="card">
+        <h2>部署流程</h2>
+        <p>專案部署到 GitHub Pages：</p>
+        <pre><code>git add README.md index.html styles.css app.js data/insect-hotel-rag.json docs/technical-build-guide.md docs/technical-build-guide.html
+git commit -m "Describe change"
+git push</code></pre>
+        <p>推送後使用 cache-busting URL 驗證線上內容：</p>
+        <pre><code>$stamp=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+Invoke-WebRequest -UseBasicParsing "https://prayer168.github.io/insect-hotel/app.js?check=$stamp"</code></pre>
+        <p>若 GitHub Pages 尚未更新，等待數秒後重試。通常 10 到 60 秒內會更新。</p>
+      </section>
+
+      <section id="next" class="card">
+        <h2>後續可擴充方向</h2>
+        <ul>
+          <li>將月份活動資料移到 JSON，讓教師可調整不同地區的蜂類季節。</li>
+          <li>加入「觀察模式」與「自動展示模式」切換。</li>
+          <li>在 SVG 中加入更明確的巢室剖面圖。</li>
+          <li>製作學生觀察單匯出按鈕。</li>
+          <li>將 RAG mock JSON 改接真正搜尋或資料庫 API。</li>
+        </ul>
+      </section>
+    </div>
+
+    <footer>
+      <p>小小法布爾的昆蟲旅館 · SVG Science Showcase</p>
+    </footer>
+  </main>
+</body>
+</html>

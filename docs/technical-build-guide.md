@@ -10,6 +10,12 @@
 https://prayer168.github.io/insect-hotel/
 ```
 
+網頁版技術文件：
+
+```text
+https://prayer168.github.io/insect-hotel/docs/technical-build-guide.html
+```
+
 ## 技術架構
 
 | 檔案 | 功能 |
@@ -18,6 +24,7 @@ https://prayer168.github.io/insect-hotel/
 | `styles.css` | 全螢幕無捲軸版面、投影友善字級、控制列樣式 |
 | `app.js` | SVG 物件生成、動畫流程、隨機事件、月份狀態、暫停與速度控制 |
 | `data/insect-hotel-rag.json` | 本地 RAG mock data，包含旅館造型、來訪蜂類、巢材與事件 |
+| `docs/technical-build-guide.html` | 技術文件網頁版 |
 | `.nojekyll` | 讓 GitHub Pages 以純靜態網站方式發布 |
 
 目前不使用前端框架，部署與維護成本低；所有互動都在瀏覽器端執行。
@@ -100,7 +107,7 @@ python -m http.server 8087
 專案部署到 GitHub Pages：
 
 ```powershell
-git add README.md index.html styles.css app.js data/insect-hotel-rag.json docs/technical-build-guide.md
+git add README.md index.html styles.css app.js data/insect-hotel-rag.json docs/technical-build-guide.md docs/technical-build-guide.html
 git commit -m "Describe change"
 git push
 ```
