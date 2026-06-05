@@ -14,18 +14,48 @@ const fallbackRagData = {
   ],
   solitaryBees: [
     {
-      id: "mason_bee",
-      name: "泥蜂或壁蜂類",
-      appearance: "深色身體、透明翅、會以泥土封口的獨居蜂概念。",
-      colors: { head: "#10191b", thorax: "#1f3438", abdomen: "#29454a", stripe: "#6e8f93", wing: "#c7eef8", pollen: "#e4b54a" },
+      id: "leafcutter_bee",
+      name: "切葉蜂類",
+      appearance: "常以葉片或植物碎片分隔巢室的蜂類概念。",
+      colors: { head: "#1d1915", thorax: "#33251c", abdomen: "#5b4630", stripe: "#c49a62", wing: "#c9eef5", pollen: "#f2c14e" },
+      preferredHoleSize: "medium",
+      defaultSeal: "leaf",
+      caption: "切葉蜂類示意：葉片材料、攜粉行為"
+    },
+    {
+      id: "carpenter_bee",
+      name: "木蜂類",
+      appearance: "利用木質孔洞或木材隧道築巢的蜂類概念。",
+      colors: { head: "#121212", thorax: "#171f23", abdomen: "#20282c", stripe: "#7f8c5a", wing: "#c7eef8", pollen: "#e4b54a" },
+      preferredHoleSize: "large",
+      defaultSeal: "wood_fiber",
+      caption: "木蜂類示意：偏好木質孔洞或木材隧道"
+    },
+    {
+      id: "reed_bee",
+      name: "蘆蜂",
+      appearance: "利用中空莖或枯枝髓心築巢的蜂類概念。",
+      colors: { head: "#1b211c", thorax: "#26372b", abdomen: "#314a35", stripe: "#8fb06a", wing: "#d6f6fb", pollen: "#efc95a" },
       preferredHoleSize: "small",
+      defaultSeal: "pith",
+      caption: "蘆蜂示意：利用中空莖與細孔巢材築巢"
+    },
+    {
+      id: "potter_wasp",
+      name: "泥壺蜂",
+      appearance: "以泥土築成壺狀或泥室構造的蜂類近親概念。",
+      colors: { head: "#21150e", thorax: "#3d2a1a", abdomen: "#1f1b16", stripe: "#9b7442", wing: "#d8f5fb", pollen: "#f0c95a" },
+      preferredHoleSize: "medium",
       defaultSeal: "mud",
-      caption: "獨居蜂示意：單獨築巢、不形成大型蜂群"
+      caption: "泥壺蜂示意：利用泥土築巢或封閉巢室"
     }
   ],
   nestMaterials: [
     { id: "pollen", name: "花粉團", color: "#f4c95d", description: "幼蟲食物。" },
-    { id: "mud", name: "泥土封口", color: "#8a5b38", description: "封閉巢口。" }
+    { id: "leaf", name: "葉片封口", color: "#5ca66b", description: "葉片材料。" },
+    { id: "mud", name: "泥土封口", color: "#8a5b38", description: "封閉巢口。" },
+    { id: "wood_fiber", name: "木屑隔間", color: "#b98952", description: "木質材料。" },
+    { id: "pith", name: "莖髓隔間", color: "#c9b36d", description: "中空莖材料。" }
   ],
   sceneEvents: [
     { id: "complete_lifecycle", name: "完整築巢到羽化", weight: 1, steps: ["飛來", "築巢", "封口", "羽化離巢"] }
@@ -457,6 +487,7 @@ async function playCycle() {
   const targetCandidates = state.holes.filter(hole => {
     if (bee.preferredHoleSize === "small") return hole.radius <= 19;
     if (bee.preferredHoleSize === "medium") return hole.radius >= 17 && hole.radius <= 24;
+    if (bee.preferredHoleSize === "large") return hole.radius >= 22;
     return true;
   });
   const target = pick(targetCandidates.length ? targetCandidates : state.holes);

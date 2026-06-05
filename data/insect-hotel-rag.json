@@ -61,23 +61,39 @@
       },
       "preferredHoleSize": "medium",
       "defaultSeal": "leaf",
-      "caption": "獨居蜂示意：透明翅、觸角、分節腹部、攜粉行為"
+      "caption": "切葉蜂類示意：葉片材料、攜粉行為"
     },
     {
-      "id": "mason_bee",
-      "name": "泥蜂或壁蜂類",
-      "appearance": "常利用泥土封閉巢室，身體多為深色，有些種類帶金屬光澤。",
+      "id": "carpenter_bee",
+      "name": "木蜂類",
+      "appearance": "木蜂類常利用木材孔洞或自行咬鑿木質隧道築巢，體型通常較結實。",
       "colors": {
-        "head": "#10191b",
-        "thorax": "#1f3438",
-        "abdomen": "#29454a",
-        "stripe": "#6e8f93",
+        "head": "#121212",
+        "thorax": "#171f23",
+        "abdomen": "#20282c",
+        "stripe": "#7f8c5a",
         "wing": "#c7eef8",
         "pollen": "#e4b54a"
       },
+      "preferredHoleSize": "large",
+      "defaultSeal": "wood_fiber",
+      "caption": "木蜂類示意：偏好木質孔洞或木材隧道"
+    },
+    {
+      "id": "reed_bee",
+      "name": "蘆蜂",
+      "appearance": "蘆蜂常利用中空莖或枯枝髓心築巢，適合用竹管、蘆葦或細孔巢材表現。",
+      "colors": {
+        "head": "#1b211c",
+        "thorax": "#26372b",
+        "abdomen": "#314a35",
+        "stripe": "#8fb06a",
+        "wing": "#d6f6fb",
+        "pollen": "#efc95a"
+      },
       "preferredHoleSize": "small",
-      "defaultSeal": "mud",
-      "caption": "獨居蜂示意：泥封巢口、單獨築巢、不形成大型蜂群"
+      "defaultSeal": "pith",
+      "caption": "蘆蜂示意：利用中空莖與細孔巢材築巢"
     },
     {
       "id": "potter_wasp",
@@ -114,6 +130,18 @@
       "name": "泥土封口",
       "color": "#8a5b38",
       "description": "部分獨居蜂會用泥土封住巢口。"
+    },
+    {
+      "id": "wood_fiber",
+      "name": "木屑隔間",
+      "color": "#b98952",
+      "description": "木蜂類可用木屑或木質材料分隔巢室。"
+    },
+    {
+      "id": "pith",
+      "name": "莖髓隔間",
+      "color": "#c9b36d",
+      "description": "蘆蜂可利用中空莖或植物髓心附近的材料築巢。"
     },
     {
       "id": "mixed",
