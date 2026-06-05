@@ -80,9 +80,9 @@
       "caption": "獨居蜂示意：泥封巢口、單獨築巢、不形成大型蜂群"
     },
     {
-      "id": "resin_bee",
-      "name": "樹脂蜂類概念",
-      "appearance": "部分獨居蜂會利用樹脂或植物材料封閉巢室，本動畫以混合封口示意。",
+      "id": "potter_wasp",
+      "name": "泥壺蜂",
+      "appearance": "泥壺蜂會以泥土築成壺狀或泥室構造，本動畫以泥土封口與泥室概念示意。",
       "colors": {
         "head": "#21150e",
         "thorax": "#3d2a1a",
@@ -92,8 +92,8 @@
         "pollen": "#f0c95a"
       },
       "preferredHoleSize": "medium",
-      "defaultSeal": "mixed",
-      "caption": "獨居蜂示意：不同種類會使用不同材料封口"
+      "defaultSeal": "mud",
+      "caption": "泥壺蜂示意：利用泥土築巢或封閉巢室"
     }
   ],
   "nestMaterials": [
@@ -119,7 +119,7 @@
       "id": "mixed",
       "name": "混合封口",
       "color": "#7c7444",
-      "description": "以植物纖維、泥土或樹脂等材料概念化表現。"
+      "description": "以植物纖維與泥土等材料概念化表現。"
     }
   ],
   "sceneEvents": [
@@ -137,4 +137,3 @@
     }
   ]
 }
-
