@@ -10,6 +10,7 @@
 | `styles.css` | 成果展投影用版面與 SVG 視覺樣式 |
 | `app.js` | 隨機選材、SVG 生成與動畫控制 |
 | `data/insect-hotel-rag.json` | 本地 RAG 模擬資料 |
+| `docs/technical-build-guide.md` | 技術建置、驗證與部署交接文件 |
 
 ## 展示內容
 
